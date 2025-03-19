@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script>
+        let speechInstance = null;
+        let idiomaActual = 'es'; // Idioma por defecto
+        let speaking = false; // Indicador de si se está hablando
+        
+        document.addEventListener("DOMContentLoaded", function () {
+            let idioma = localStorage.getItem("idioma") || "es";
+            cambiarIdioma(idioma);
+        });
+        
+        function cambiarIdioma(idioma) {
+            idiomaActual = idioma; // Guarda el idioma seleccionado
+            localStorage.setItem("idioma", idioma); // Guarda el idioma en el almacenamiento local
+            console.log("Idioma cambiado a:", idiomaActual);
+        
+            // Cambiar el texto según el idioma
+            document.querySelectorAll("[data-es]").forEach(el => {
+                el.innerText = idioma === "es" ? el.getAttribute("data-es") : el.getAttribute("data-en");
+            });
+        }
+        
+        function leerTexto(id) {
+            if (speaking) {
+                window.speechSynthesis.cancel(); // Cancela la voz si está hablando
+                speaking = false; // Indicamos que no se está hablando
+                return; // Salimos de la función para no volver a iniciar la lectura
+            }
+        
+            let texto = document.getElementById(id).innerText;
+            let frases = texto.match(/[^.!?]+[.!?]+/g) || [texto]; // Divide el texto en frases
+        
+            let i = 0;
+        
+            function hablar() {
+                if (i < frases.length) {
+                    speechInstance = new SpeechSynthesisUtterance(frases[i]);
+                    speechInstance.lang = idiomaActual; // Usa el idioma actual
+                    speechInstance.onend = () => {
+                        i++;
+                        hablar(); // Lee la siguiente frase
+                    };
+        
+                    speechInstance.onstart = () => {
+                        speaking = true; // Indicamos que se está hablando
+                    };
+        
+                    window.speechSynthesis.speak(speechInstance);
+                } else {
+                    speaking = false; // Ya no está hablando, reiniciamos el estado
+                    speechInstance = null;
+                }
+            }
+        
+            hablar(); // Comienza a leer el texto
+        }
+    </script>
+</head>
+<body>
+
+    <div class="idiomas">
+        <div class="idioma-container">
+            <button class="idioma1" onclick="cambiarIdioma('es')"></button>
+            <span>Español</span>
+        </div>
+        
+        <div class="idioma-container">
+            <button class="idioma2" onclick="cambiarIdioma('en')"></button>
+            <span>English</span>
+        </div>
+    </div>
+    <style>
+        body{
+            text-align: center;
+        }
+        h3{
+            text-align: justify;
+        }
+        .idioma1, .idioma2 {
+            width: 60px;
+            height: 30px;
+            border: none;
+            background-size: cover;
+            cursor: pointer;
+            margin: 20px 70px; /* Espacio entre botones */
+        }
+        .idioma1 {
+            background-image: url('img/Banderas/Band_mex.webp');
+        }
+        .idioma2 {
+            background-image: url('img/Banderas/Band_EU.png');
+        }
+        .idiomas {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .idioma-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 10px;
+        }
+        .boton-maps {
+            position: relative;
+            display: inline-block;
+            padding: 12px 24px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            background: blue;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            overflow: hidden;
+        }
+
+        /* Efecto de onda */
+        .boton-maps::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: black;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.4s, height 0.4s, opacity 0.4s;
+            opacity: 0;
+        }
+
+        .boton-maps:active::after {
+            width: 200px;
+            height: 200px;
+            opacity: 1;
+        }
+        img{
+            width: 250px;
+            height: 200px; 
+        }
+    </style>
+    <h1 data-es="Puerta de tierra" data-en="Ground gate">
+        Puerta de tierra</h1>
+        <button onclick="leerTexto('texto1')">🔊 Escuchar</button>
+
+    <h3 id="texto1" data-es="Fue construida en 1732 por Don Antonio de Figueroa y Silva. 
+        Se encuentra entre el baluarte de San Francisco y San Juan. 
+        Posee una enorme bóveda con dos habitaciones para el cuerpo de guardia y el cuarto de oficial. 
+        Sobre la bóveda se encuentra una pequeña plaza de armas con 8 cañoneras. 
+        En la parte superior de la puerta podemos apreciar una matacaspa o saratana (defensa con granadas). 
+        Para la defensa de la puerta con granadas y fuego de artillería, tiene un espacio para el descenso y ascenso del rastrillo.
+        La puerta es de madera de jabín, con fajas de hierro. 
+        En la parte frontal se encuentra un revellín de mampostería que está protegido por un foso reducido de 3 m de profundidad. 
+        Originalmente poseía un puente levadizo con su rastrillo.
+        Actualmente existe una pequeña sala de exhibición donde podemos observar replicas de armas españolas, 
+        así como un gran cañón de bronce de origen francés encontrado en la costa del poblado de Lerma. 
+        Toda el área de la Puerta de Tierra y los lienzos de muralla que la unen con el Baluarte de San Francisco y de San Juan, 
+        es aprovechada para realizar un espectáculo de luz y sonido denominado “El Lugar del Sol”." data-en="Fue construida en 1732 por Don Antonio de Figueroa y Silva. 
+        Se encuentra entre el baluarte de San Francisco y San Juan. 
+        Posee una enorme bóveda con dos habitaciones para el cuerpo de guardia y el cuarto de oficial. 
+        Sobre la bóveda se encuentra una pequeña plaza de armas con 8 cañoneras. 
+        En la parte superior de la puerta podemos apreciar una matacaspa o saratana (defensa con granadas). 
+        Para la defensa de la puerta con granadas y fuego de artillería, tiene un espacio para el descenso y ascenso del rastrillo.
+        La puerta es de madera de jabín, con fajas de hierro. 
+        En la parte frontal se encuentra un revellín de mampostería que está protegido por un foso reducido de 3 m de profundidad. 
+        Originalmente poseía un puente levadizo con su rastrillo.
+        Actualmente existe una pequeña sala de exhibición donde podemos observar replicas de armas españolas, 
+        así como un gran cañón de bronce de origen francés encontrado en la costa del poblado de Lerma. 
+        Toda el área de la Puerta de Tierra y los lienzos de muralla que la unen con el Baluarte de San Francisco y de San Juan, 
+        es aprovechada para realizar un espectáculo de luz y sonido denominado “El Lugar del Sol”.">
+        Fue construida en 1732 por Don Antonio de Figueroa y Silva. 
+        Se encuentra entre el baluarte de San Francisco y San Juan. 
+        Posee una enorme bóveda con dos habitaciones para el cuerpo de guardia y el cuarto de oficial. 
+        Sobre la bóveda se encuentra una pequeña plaza de armas con 8 cañoneras. 
+        En la parte superior de la puerta podemos apreciar una matacaspa o saratana (defensa con granadas). 
+        Para la defensa de la puerta con granadas y fuego de artillería, tiene un espacio para el descenso y ascenso del rastrillo.
+        La puerta es de madera de jabín, con fajas de hierro. 
+        En la parte frontal se encuentra un revellín de mampostería que está protegido por un foso reducido de 3 m de profundidad. 
+        Originalmente poseía un puente levadizo con su rastrillo.
+        Actualmente existe una pequeña sala de exhibición donde podemos observar replicas de armas españolas, 
+        así como un gran cañón de bronce de origen francés encontrado en la costa del poblado de Lerma. 
+        Toda el área de la Puerta de Tierra y los lienzos de muralla que la unen con el Baluarte de San Francisco y de San Juan, 
+        es aprovechada para realizar un espectáculo de luz y sonido denominado “El Lugar del Sol”.
+    </h3>
+    <header>
+    <img src="img/Puerta_Tierra/Puerta_tierra2.jpeg">
+    <img src="img/Puerta_Tierra/Puerta_tierra3.jpeg">
+    </header><br><br>
+    <a href="https://maps.app.goo.gl/uUUSp4bboPdSGV7i6" class="boton-maps">
+    <button data-es="ir" data-en="Go">ir</button>
+    </a><br>
+    <a href="R_Peatonal.html" class="boton-maps">
+    <button data-es="sitios relevantes" data-en="relevant sites">sitios relevantes</button>
+    </a>
+</body>
+</html>
